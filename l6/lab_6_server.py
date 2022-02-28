@@ -30,25 +30,29 @@ class LengthServer:
         
         Pre: Specify a host and port
         """
-        self.tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.tcp_sock.bind((HOST, PORT))
+        self.tcp_listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.tcp_listener.bind((HOST, PORT))
 
     def calc_length(self):
         """Determine the length of incoming an incoming message"""
 
-        self.tcp_sock.listen(BACKLOG)
-        byte_length = self.tcp_sock.recv(LENGTH_FIELD_SIZE)
-        length = byte_length.from_bytes(LENGTH_FIELD_SIZE, 'big')
+        self.tcp_listener.listen(BACKLOG)
+        while True:
+            conn, addr = self.tcp_listener.accept()
+            with conn:
+                length = int.from_bytes(conn.recv(LENGTH_FIELD_SIZE), 'big')
 
-        try:
-            recvall(self.tcp_sock, length).decode(ENCODING)
+                try:
+                    recvall(conn, length).decode(ENCODING)
 
-        except EOFError:
-            self.tcp_sock.sendall(b"Length Error")
-
-        else:
-            self.tcp_sock.sendall(f"I received {length} bytes.")
-        
+                except EOFError:
+                    message = "Length Error"
+                    
+                else:
+                    message = f"I received {length} bytes."
+                
+                reply = len(message).to_bytes(4, 'big') + message.encode("ascii")
+                conn.sendall(reply)
 
 """Receive a set length message from the socket
 Cite: Function from provided client code
