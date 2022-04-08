@@ -1,5 +1,10 @@
-"""A server to answer questions like a magic 8 ball using multiple threads.
+"""A server to answer questions like a magic 8 ball by using multiple threads.
 
+Name: MW Giannini
+Class: CSI-275-01
+Assignment: Lab 10: The Magic 8-Ball
+Due: Monday, April 11th
+Authenticity: I affirm that this work is entirely my own.
 """
 
 from email import message
@@ -30,7 +35,7 @@ ANSWER_LIST = ["It is certain.",
 
 # Server host/port information
 HOST = "localhost"
-SERVER_PORT = 7000
+SERVER_PORT = 8000
 
 # Maximum amount of data to read in one function call
 MAX_BYTES = 1024
@@ -45,7 +50,6 @@ class EightBallServer:
 
         self.start_threads(self.srv_sock)
 
-    # TODO Write this function!
     def create_server_socket(self, host, port):
         """Set up the 8-Ball server socket.
 
@@ -53,11 +57,10 @@ class EightBallServer:
         the created listening socket.
         """
         listener = socket.socket()
-        listener.bind(HOST, SERVER_PORT)
+        listener.bind((HOST, SERVER_PORT))
         listener.listen(20)
         return listener
 
-    # TODO Write this function!
     def accept_8ball_connections(self, listener):
         """Answer questions with Magic 8-Ball responses.
 
@@ -71,17 +74,19 @@ class EightBallServer:
             - Send all of the answers as a single string back to the client,
             - and close the socket.
         """
-        buffer = b''
-        reply = ''
-
         while True:
             tcp_sock, junk_address = listener.accept()
-            question, buffer = self.recv_until_delimiter(tcp_sock, b'?', buffer)
+            buffer = b''
+            replies = ''
 
-            # Ignore question and generate random reply
-            reply += ANSWER_LIST[random(0, len(ANSWER_LIST))]
+            while tcp_sock:
+                question, buffer = self.recv_until_delimiter(tcp_sock, b'?', buffer)
 
-        tcp_sock.sendall(reply.encode())
+                # Ignore question and generate random reply
+                replies += ANSWER_LIST[random.randint(0, len(ANSWER_LIST)-1)]
+                
+            tcp_sock.sendall(replies.encode())
+            tcp_sock.close()
 
     def recv_until_delimiter(self, sock, byte_delim, storage):
         """Receive data until it sees a specified delimiter.
@@ -155,7 +160,7 @@ class EightBallServer:
         self.threads = []
         # Create a list of threads as a member
         for i in range(0, workers):
-            thread = threading.Thread(target=self.accept_connections_forever,args=listener)
+            thread = threading.Thread(target=self.accept_connections_forever,args=(listener,))
             thread.start()
             self.threads.append(thread)
 

@@ -14,7 +14,7 @@ LARGE_QUESTION_COUNT = 10000
 
 # Server host/port information
 HOST = "localhost"
-SERVER_PORT = 7000
+SERVER_PORT = 8000
 
 # Maximum amount of data to read in one function call
 MAX_BYTES = 1024
