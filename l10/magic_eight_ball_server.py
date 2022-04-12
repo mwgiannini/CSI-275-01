@@ -35,7 +35,7 @@ ANSWER_LIST = ["It is certain.",
 
 # Server host/port information
 HOST = "localhost"
-SERVER_PORT = 8000
+SERVER_PORT = 7000
 
 # Maximum amount of data to read in one function call
 MAX_BYTES = 1024
@@ -78,13 +78,18 @@ class EightBallServer:
             tcp_sock, junk_address = listener.accept()
             buffer = b''
             replies = ''
+            more = True
 
-            while tcp_sock:
+            # Keep accepting questions until there are none left
+            while more:
                 question, buffer = self.recv_until_delimiter(tcp_sock, b'?', buffer)
-
-                # Ignore question and generate random reply
-                replies += ANSWER_LIST[random.randint(0, len(ANSWER_LIST)-1)]
-                
+                if question == b"" and buffer == b"":
+                    more = False
+                else:
+                    # Ignore question and generate random reply
+                    replies += ANSWER_LIST[random.randint(0, len(ANSWER_LIST)-1)]
+            
+            # Send the replies and close the socket
             tcp_sock.sendall(replies.encode())
             tcp_sock.close()
 
@@ -150,7 +155,6 @@ class EightBallServer:
         finally:
             sock.close()
 
-    # TODO Write this function!
     def start_threads(self, listener, workers=4):
         """Kick off the threads needed to serve 8-ball requests.
 
