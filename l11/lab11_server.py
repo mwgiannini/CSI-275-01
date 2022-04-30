@@ -1,4 +1,10 @@
-"""Don't forget your docstrings!
+""" A server for receiving messages from a client using TLS.
+
+Name: MW Giannini
+Assignment: Lab 11
+Class: CSI-275-01
+Certificate of authenticitiy: I certify that this is entirely my own work,
+except where code has been provided to me for the assignment.
 """
 
 import socket, ssl
@@ -27,6 +33,11 @@ def handler(client_socket, addr):
 
 
 if __name__ == "__main__":
+    # Create context
+    context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    context.load_cert_chain(certfile='srv_cert.crt', keyfile='srv_key.key')
+    context.load_verify_locations('cli_cert.crt')
+
     # Create our listening socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -37,4 +48,5 @@ if __name__ == "__main__":
         # For every connection we get, spin off a new thread to
         # handle the accept socket
         client_sock, addr = sock.accept()
-        _thread.start_new_thread(handler, (client_sock, addr))
+        tls_sock = context.wrap_socket(client_sock, server_side=True)
+        _thread.start_new_thread(handler, (tls_sock, addr))
