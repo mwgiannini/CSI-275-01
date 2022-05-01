@@ -1,4 +1,11 @@
-from concurrent.futures import ThreadPoolExecutor, thread
+""" A multithreaded client for chat messaging.
+
+Name: MW Giannini
+Assignment: Final Project
+Class: CSI-275-01
+Certificate of authenticitiy: I certify that this is entirely my own work,
+except where code has been provided to me for the assignment.
+"""
 import socket
 import json
 import threading
@@ -17,6 +24,8 @@ class MessageClient:
         """Initialize a message client."""
         self.get_user_name()
         self.create_sockets()
+
+        # Send start messages to both sockets to tell server username
         self.send_message(self.send_sock, 'START', message=self.user_name)
         self.send_message(self.recv_sock, 'START', message=self.user_name)
 
@@ -48,6 +57,8 @@ class MessageClient:
         """Send a message to the server."""
         message = {'type': message_type, 'message': message,
                    'from': self.user_name, 'recipient': recipient}
+        
+        # Format message
         json_message = json.dumps(message)
         bytes_message = json_message.encode()
         compr_message = zlib.compress(bytes_message)
@@ -97,6 +108,7 @@ class MessageClient:
         while True:
             message = self.recv_message(self.recv_sock)
 
+            # Handle different types of messages
             if message['type'] == 'BROADCAST':
                 print(f"{message['from']}: {message['message']}")
 
@@ -133,6 +145,7 @@ class MessageClient:
 def main():
     client = MessageClient()
 
+    # Create send/recv threads
     send_thread = threading.Thread(target=client.sock_handler, args=('SEND',))
     recv_thread = threading.Thread(target=client.sock_handler, args=('RECV',))
 

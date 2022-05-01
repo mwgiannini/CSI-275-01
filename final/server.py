@@ -1,9 +1,15 @@
+""" A multithreaded server for chat messaging.
+
+Name: MW Giannini
+Assignment: Final Project
+Class: CSI-275-01
+Certificate of authenticitiy: I certify that this is entirely my own work,
+except where code has been provided to me for the assignment.
+"""
 import socket
 import threading
 import json
 import zlib
-
-from cv2 import connectedComponents
 
 class MessageServer:
     """Chat server for multiple clients."""
@@ -109,6 +115,7 @@ class MessageServer:
 
     def send_message(self, sock, message):
         """Send a message to a client."""
+        # Format message
         json_message = json.dumps(message)
         bytes_message = json_message.encode()
         compr_message = zlib.compress(bytes_message)
@@ -145,6 +152,7 @@ class MessageServer:
 def main():
     server = MessageServer()
     
+    # Create read/write threads
     read_thread = threading.Thread(target=server.sock_handler, args=('READ',))
     writ_thread = threading.Thread(target=server.sock_handler, args=('WRIT',))
 
