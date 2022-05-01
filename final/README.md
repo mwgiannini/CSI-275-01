@@ -1,5 +1,5 @@
 ## Running the program
-The client and server can be started as expected with the following commands
+The client and server can be started with the commands
 	`python client.py`
 	`python server.py`
 
