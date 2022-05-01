@@ -119,7 +119,9 @@ class MessageClient:
         """Listen for messages from user and send to the server."""
         while True:
             # Check the first word of user input for commands
-            message = input()
+            message = None
+            while not message or message.isspace():
+                message = input()
             command = message.split()[0]
 
             # Exit
